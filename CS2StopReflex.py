@@ -31,14 +31,14 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("CS2急停评估工具")
+        self.setWindowTitle("CS2 Counter-Strafing Evaluation Tool")
         self.setGeometry(100, 100, 1400, 900)
 
         icon_path = resource_path("CS2.ico")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
         else:
-            print("图标文件 CS2.ico 未找到。")
+            print("Icon file CS2.ico not found.")
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
         font_small = QFont("Microsoft YaHei", 12)
         font_key = QFont("Microsoft YaHei", 14, QFont.Bold)
 
-        self.feedback_label = QLabel("请模拟自己PEEK时进行AD大拉")
+        self.feedback_label = QLabel("Please simulate AD counter-strafing during peeking")
         self.feedback_label.setAlignment(Qt.AlignCenter)
         self.feedback_label.setFont(font_large)
         self.feedback_label.setStyleSheet("""
@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
 
         key_status_layout = QHBoxLayout()
 
-        self.a_key_label = QLabel("A键：未按下")
+        self.a_key_label = QLabel("A Key: Not Pressed")
         self.a_key_label.setFont(font_key)
         self.a_key_label.setAlignment(Qt.AlignCenter)
         self.a_key_label.setStyleSheet("""
@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         self.a_key_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         key_status_layout.addWidget(self.a_key_label)
 
-        self.d_key_label = QLabel("D键：未按下")
+        self.d_key_label = QLabel("D Key: Not Pressed")
         self.d_key_label.setFont(font_key)
         self.d_key_label.setAlignment(Qt.AlignCenter)
         self.d_key_label.setStyleSheet("""
@@ -217,17 +217,17 @@ class MainWindow(QMainWindow):
                         color = self.get_color(time_diff_ms)
 
                         if abs(time_diff_ms) <= 2:
-                            timing = '完美急停'
+                            timing = 'Perfect Counter-Strafing'
                         elif time_diff_ms < 0:
-                            timing = '按早了'
+                            timing = 'Pressed Too Early'
                         else:
-                            timing = '按晚了'
+                            timing = 'Pressed Too Late'
 
-                        feedback = f"{timing}：松开{self.waiting_for_opposite_key['key_released']}后{abs(time_diff_ms):.1f}ms按下了{key_char}"
+                        feedback = f"{timing}: Released {self.waiting_for_opposite_key['key_released']} and pressed {key_char} after {abs(time_diff_ms):.1f}ms"
 
                         detail_info = {
                             'events': self.waiting_for_opposite_key['events'] + [
-                                {'key': key_char, 'event': '按下', 'time': press_time, 'time_str': self.format_time(press_time)}
+                                {'key': key_char, 'event': 'Pressed', 'time': press_time, 'time_str': self.format_time(press_time)}
                             ]
                         }
 
@@ -272,18 +272,18 @@ class MainWindow(QMainWindow):
             color = self.get_color(time_diff_ms)
 
             if abs(time_diff_ms) <= 2:
-                timing = '完美急停'
+                timing = 'Perfect Counter-Strafing'
             elif time_diff_ms < 0:
-                timing = '按早了'
+                timing = 'Pressed Too Early'
             else:
-                timing = '按晚了'
+                timing = 'Pressed Too Late'
 
-            feedback = f"{timing}：未松开{key_released}就按下了{opposite_key}，{abs(time_diff_ms):.1f}ms"
+            feedback = f"{timing}: Pressed {opposite_key} without releasing {key_released}, {abs(time_diff_ms):.1f}ms"
 
             detail_info = {
                 'events': [
-                    {'key': key_released, 'event': '松开', 'time': release_time, 'time_str': self.format_time(release_time)},
-                    {'key': opposite_key, 'event': '按下', 'time': key_state['time'], 'time_str': self.format_time(key_state['time'])}
+                    {'key': key_released, 'event': 'Released', 'time': release_time, 'time_str': self.format_time(release_time)},
+                    {'key': opposite_key, 'event': 'Pressed', 'time': key_state['time'], 'time_str': self.format_time(key_state['time'])}
                 ]
             }
 
@@ -301,7 +301,7 @@ class MainWindow(QMainWindow):
                 'release_time': release_time,
                 'key_released': key_released,
                 'events': [
-                    {'key': key_released, 'event': '松开', 'time': release_time, 'time_str': self.format_time(release_time)}
+                    {'key': key_released, 'event': 'Released', 'time': release_time, 'time_str': self.format_time(release_time)}
                 ]
             }
 
@@ -319,7 +319,7 @@ class MainWindow(QMainWindow):
     def update_history(self, press_time, time_diff, detail_info, color):
         time_diff_ms = round(time_diff * 1000, 1)
         time_str = self.format_time(press_time)
-        item_text = f"{time_str} - 时间差：{time_diff_ms:.1f}ms"
+        item_text = f"{time_str} - Time Difference: {time_diff_ms:.1f}ms"
         item = QListWidgetItem(item_text)
         item.setData(Qt.UserRole, detail_info)
         item.setBackground(QBrush(color))
@@ -355,14 +355,14 @@ class MainWindow(QMainWindow):
 
         if time_diffs:
             mean_value = statistics.mean(time_diffs)
-            ax.axhline(mean_value, color='blue', linestyle='--', linewidth=2, label=f'平均值：{mean_value:.1f}ms')
+            ax.axhline(mean_value, color='blue', linestyle='--', linewidth=2, label=f'Average: {mean_value:.1f}ms')
 
             ax.axhline(0, color='black', linewidth=1, linestyle='-')
 
         ax.set_xticks(jump_numbers)
-        ax.set_xlabel('操作次数', fontproperties="Microsoft YaHei", fontsize=12)
-        ax.set_ylabel('时间差（ms）', fontproperties="Microsoft YaHei", fontsize=12)
-        ax.set_title('提前或滞后时间差（最近25次）', fontproperties="Microsoft YaHei", fontsize=14)
+        ax.set_xlabel('Operation Count', fontproperties="Microsoft YaHei", fontsize=12)
+        ax.set_ylabel('Time Difference (ms)', fontproperties="Microsoft YaHei", fontsize=12)
+        ax.set_title('Time Difference (Last 25 Operations)', fontproperties="Microsoft YaHei", fontsize=14)
         ax.legend(prop={'family': 'Microsoft YaHei', 'size': 10})
 
         ax.spines['top'].set_visible(False)
@@ -393,8 +393,8 @@ class MainWindow(QMainWindow):
             for median in bp['medians']:
                 median.set(color='#b2df8a', linewidth=2)
 
-            ax.set_xlabel('时间差（ms）', fontproperties="Microsoft YaHei", fontsize=12)
-            ax.set_title('时间差箱线图（最近50次）', fontproperties="Microsoft YaHei", fontsize=14)
+            ax.set_xlabel('Time Difference (ms)', fontproperties="Microsoft YaHei", fontsize=12)
+            ax.set_title('Time Difference Boxplot (Last 50 Operations)', fontproperties="Microsoft YaHei", fontsize=14)
 
             ax.grid(True, linestyle='--', alpha=0.6)
 
@@ -412,16 +412,16 @@ class MainWindow(QMainWindow):
             events = detail_info['events']
             message = ""
             for event in events:
-                message += f"{event['time_str']} - {event['key']}键 {event['event']}\n"
-            QMessageBox.information(self, "详细信息", message)
+                message += f"{event['time_str']} - {event['key']} Key {event['event']}\n"
+            QMessageBox.information(self, "Details", message)
 
     def format_time(self, timestamp):
-        return f"{timestamp:.3f}秒"
+        return f"{timestamp:.3f} seconds"
 
     def update_key_state_display(self, key_char, is_pressed):
         if key_char == 'A':
             if is_pressed:
-                self.a_key_label.setText("A键：按下")
+                self.a_key_label.setText("A Key: Pressed")
                 self.a_key_label.setStyleSheet("""
                     QLabel {
                         background-color: #90EE90;
@@ -430,7 +430,7 @@ class MainWindow(QMainWindow):
                     }
                 """)
             else:
-                self.a_key_label.setText("A键：未按下")
+                self.a_key_label.setText("A Key: Not Pressed")
                 self.a_key_label.setStyleSheet("""
                     QLabel {
                         background-color: #D3D3D3;
@@ -440,7 +440,7 @@ class MainWindow(QMainWindow):
                 """)
         elif key_char == 'D':
             if is_pressed:
-                self.d_key_label.setText("D键：按下")
+                self.d_key_label.setText("D Key: Pressed")
                 self.d_key_label.setStyleSheet("""
                     QLabel {
                         background-color: #90EE90;
@@ -449,7 +449,7 @@ class MainWindow(QMainWindow):
                     }
                 """)
             else:
-                self.d_key_label.setText("D键：未按下")
+                self.d_key_label.setText("D Key: Not Pressed")
                 self.d_key_label.setStyleSheet("""
                     QLabel {
                         background-color: #D3D3D3;
@@ -486,7 +486,7 @@ class MainWindow(QMainWindow):
 
     def show_recommendations(self):
         if not self.data:
-            QMessageBox.information(self, "急停建议", "暂无数据可供分析。")
+            QMessageBox.information(self, "Counter-Strafing Recommendations", "No data available for analysis.")
             return
 
         avg_time_diff = statistics.mean([d['time_diff'] for d in self.data])
@@ -494,26 +494,26 @@ class MainWindow(QMainWindow):
 
         if avg_time_diff_ms < -5:
             recommendation = (
-                f"您的平均时间差为 {avg_time_diff_ms:.2f}ms，偏早。\n\n"
-                "建议：\n"
-                "- 使用更短的反应时间 (RT)。\n"
-                "- 使用更长的死区（触发键程）。\n"
-                "- 考虑开启 Snaptap 相关残疾辅助功能。"
+                f"Your average time difference is {avg_time_diff_ms:.2f}ms, too early.\n\n"
+                "Recommendations:\n"
+                "- Use a shorter reaction time (RT).\n"
+                "- Use a longer deadzone (trigger distance).\n"
+                "- Consider enabling Snaptap-related assist features."
             )
         elif avg_time_diff_ms > 5:
             recommendation = (
-                f"您的平均时间差为 {avg_time_diff_ms:.2f}ms，偏晚。\n\n"
-                "建议：\n"
-                "- 使用更长的反应时间 (RT)。\n"
-                "- 使用更短的死区（触发键程）。"
+                f"Your average time difference is {avg_time_diff_ms:.2f}ms, too late.\n\n"
+                "Recommendations:\n"
+                "- Use a longer reaction time (RT).\n"
+                "- Use a shorter deadzone (trigger distance)."
             )
         else:
             recommendation = (
-                f"您的平均时间差为 {avg_time_diff_ms:.2f}ms。\n\n"
-                "您表现出色！继续保持您的急停技巧！"
+                f"Your average time difference is {avg_time_diff_ms:.2f}ms.\n\n"
+                "You are doing great! Keep up the good counter-strafing!"
             )
 
-        QMessageBox.information(self, "急停建议", recommendation)
+        QMessageBox.information(self, "Counter-Strafing Recommendations", recommendation)
 
 def main():
     if hasattr(Qt, 'AA_EnableHighDpiScaling'):
@@ -527,7 +527,7 @@ def main():
         window.show()
         sys.exit(app.exec_())
     except Exception as e:
-        print(f"发生错误: {e}")
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
